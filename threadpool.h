@@ -75,3 +75,106 @@ private:
     std::mutex              m_mut{};
     std::condition_variable m_cond{};
 };
+
+
+template<typename T>
+Threadsafe_queue<T>::Threadsafe_queue(const std::queue<T>& queue) noexcept:
+    m_queue{ queue }
+{
+}
+
+
+template<typename T>
+Threadsafe_queue<T>::Threadsafe_queue(std::queue<T>&& queue) noexcept:
+    m_queue{ std::move(queue) }
+{
+}
+
+
+template<typename T>
+void
+Threadsafe_queue<T>::push(const T& value) noexcept
+{
+    std::lock_guard<std::mutex> lock{ m_mut };
+    m_queue.push(value);
+
+    // Notify wait_and_pop();
+    m_cond.notify_one();
+}
+
+
+template<typename T>
+void
+Threadsafe_queue<T>::push(T&& value) noexcept
+{
+    std::lock_guard<std::mutex> lock{ m_mut };
+    m_queue.push(std::move(value));
+
+    // Notify wait_and_pop();
+    m_cond.notify_one();
+}
+
+
+template<typename T>
+bool
+Threadsafe_queue<T>::try_pop(T& value) noexcept
+{
+    std::lock_guard<std::mutex> lock{ m_mut };
+
+    // If the queue is empty, return false
+    if (m_queue.empty()) {
+	return false;
+    }
+
+    // Otherwise, pop the value and return true
+    value = m_queue.front();
+    m_queue.pop();
+    return true;
+}
+
+
+template<typename T>
+T
+Threadsafe_queue<T>::try_pop()
+{
+    std::lock_guard<std::mutex> lock{ m_mut };
+
+    // If queue is empty, throw exception
+    if (m_queue.empty()) {
+	throw std::runtime_error{ "try_pop" };
+    }
+
+    // Otherwise, pop the value and return it
+    auto value = m_queue.front();
+    m_queue.pop();
+    return value;
+}
+
+
+template<typename T>
+T
+Threadsafe_queue<T>::wait_and_pop() noexcept
+{
+    std::unique_lock lock{ m_mut };
+
+    // Block until the queue is not empty
+    m_cond.wait(lock, [this]{ return !m_queue.empty(); });
+
+    // Pop the value and return it
+    auto value = m_queue.front();
+    m_queue.pop();
+    return value;
+}
+
+
+template<typename T>
+bool
+Threadsafe_queue<T>::empty() const noexcept
+{
+    std::lock_guard<std::mutex> lock{ m_mut };
+    
+    if (m_queue.empty()) {
+	return true;
+    }
+    return false;
+}
