@@ -8,6 +8,12 @@
  */
 
 
+#include <queue>
+#include <mutex>
+#include <condition_variable>
+#include <stdexcept>
+
+
 /* ============= Threadsafe_queue ============ */
 
 /**
@@ -45,6 +51,12 @@ public:
     bool try_pop(T&) noexcept;
 
     /**
+     * Pop the value if it exists or
+     * throw an instance of runtime_error
+     */
+    T try_pop();
+
+    /**
      * If queue isn't empty, immediately pop
      * the value and return it. Otherwise, wait
      * for the queue to fill with some value first,
@@ -59,6 +71,7 @@ public:
     bool empty() const noexcept;
 
 private:
-    std::queue<T> m_queue{};
-    std::mutex    m_mut{};
+    std::queue<T>           m_queue{};
+    std::mutex              m_mut{};
+    std::condition_variable m_cond{};
 };
