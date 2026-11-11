@@ -168,3 +168,53 @@ Threadsafe_queue<T>::empty() const noexcept
     }
     return false;
 }
+
+
+/* ============= Thread_vector ============ */
+/**
+ * Simple class to wrap std::vector<std::thread>
+ * Provides functions to push the threads and
+ * automatically joins the threads on destruction
+ */
+
+class Thread_vector
+{
+public:
+    Thread_vector()=default;
+
+    /**
+     * Copying not allowed
+     */
+    Thread_vector(const Thread_vector&)=delete;
+    Thread_vector& operator=(const Thread_vector&)=delete;
+
+    /**
+     * Move constructor and operator
+     */
+    Thread_vector(Thread_vector&& vector) noexcept:
+	m_vector{ std::move(vector) }
+    {}
+
+    Thread_vector& operator=(Thread_vector&& vector) noexcept;
+
+    /**
+     * Constructor to wrap a simple vector of threads
+     */
+    Thread_vector(std::vector<std::thread>&& vector) noexcept:
+	m_vector{ std::move(vector) }
+    {}
+
+    /**
+     * Destructor joins the threads
+     */
+    ~Thread_vector();
+
+    /**
+     * Pushing in the vector is move-only as
+     * threads can't be copied
+     */
+    void push_back(std::thread&& thread) noexcept;
+
+private:
+    std::vector<std::thread> m_vector{};
+};
