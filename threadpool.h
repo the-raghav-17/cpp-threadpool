@@ -15,7 +15,6 @@
 
 
 /* ============= Threadsafe_queue ============ */
-
 /**
  * Simple wrapper class around Standard Library
  * Queue to make it threadsafe for the purpose
@@ -31,8 +30,13 @@ public:
     /**
      * Constructors to wrap a simple queue
      */
-    Threadsafe_queue(const std::queue<T>&) noexcept;
-    Threadsafe_queue(std::queue<T>&&) noexcept;
+    Threadsafe_queue(const std::queue<T>& queue) noexcept:
+	m_queue{ queue }
+    {}
+
+    Threadsafe_queue(std::queue<T>&& queue) noexcept:
+	m_queue{ std::move(queue) }
+    {}
 
     /**
      * Copies the value
@@ -75,20 +79,6 @@ private:
     std::mutex              m_mut{};
     std::condition_variable m_cond{};
 };
-
-
-template<typename T>
-Threadsafe_queue<T>::Threadsafe_queue(const std::queue<T>& queue) noexcept:
-    m_queue{ queue }
-{
-}
-
-
-template<typename T>
-Threadsafe_queue<T>::Threadsafe_queue(std::queue<T>&& queue) noexcept:
-    m_queue{ std::move(queue) }
-{
-}
 
 
 template<typename T>
@@ -141,7 +131,7 @@ Threadsafe_queue<T>::try_pop()
 
     // If queue is empty, throw exception
     if (m_queue.empty()) {
-	throw std::runtime_error{ "try_pop" };
+	throw std::runtime_error{ "try_pop(): Queue is empty" };
     }
 
     // Otherwise, pop the value and return it
@@ -157,7 +147,7 @@ Threadsafe_queue<T>::wait_and_pop() noexcept
 {
     std::unique_lock lock{ m_mut };
 
-    // Block until the queue is not empty
+    // Block until the queue has some value
     m_cond.wait(lock, [this]{ return !m_queue.empty(); });
 
     // Pop the value and return it
