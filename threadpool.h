@@ -191,11 +191,8 @@ public:
     /**
      * Move constructor and operator
      */
-    Thread_vector(Thread_vector&& vector) noexcept:
-	m_vector{ std::move(vector) }
-    {}
-
-    Thread_vector& operator=(Thread_vector&& vector) noexcept;
+    Thread_vector(Thread_vector&& vector)=default;
+    Thread_vector& operator=(Thread_vector&& vector)=default;
 
     /**
      * Constructor to wrap a simple vector of threads
