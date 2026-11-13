@@ -12,6 +12,8 @@
 #include <mutex>
 #include <condition_variable>
 #include <stdexcept>
+#include <vector>
+#include <thread>
 
 
 /* ============= Threadsafe_queue ============ */
@@ -215,3 +217,21 @@ public:
 private:
     std::vector<std::thread> m_vector{};
 };
+
+
+Thread_vector::~Thread_vector()
+{
+    // Join the threads
+    for (auto& thread : m_vector) {
+	if (thread.joinable()) {
+	    thread.join();
+	}
+    }
+}
+
+
+void
+Thread_vector::push_back(std::thread&& thread) noexcept
+{
+    m_vector.push_back(std::move(thread));
+}
