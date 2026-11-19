@@ -30,6 +30,15 @@ public:
     Threadsafe_queue()=default;
 
     /**
+     * Copy constructor and operator
+     */
+    Threadsafe_queue(const Threadsafe_queue<T>& other):
+        m_queue{ other.m_queue }
+    {}
+
+    Threadsafe_queue<T>& operator=(const Threadsafe_queue<T>&);
+
+    /**
      * Constructors to wrap a simple queue
      */
     Threadsafe_queue(const std::queue<T>& queue) noexcept:
@@ -87,6 +96,19 @@ private:
     std::mutex              m_mut{};
     std::condition_variable m_cond{};
 };
+
+
+template<typename T>
+Threadsafe_queue<T>&
+Threadsafe_queue<T>::operator=(const Threadsafe_queue<T>& other)
+{
+    if (&other == this) {
+        return *this;
+    }
+
+    m_queue = other.m_queue;
+    return *this;
+}
 
 
 template<typename T>
