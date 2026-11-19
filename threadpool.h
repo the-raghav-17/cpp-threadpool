@@ -74,7 +74,7 @@ public:
      * Return true if queue is
      * empty. Otherwise false
      */
-    bool empty() const noexcept;
+    bool empty() noexcept;
 
 private:
     std::queue<T>           m_queue{};
@@ -161,7 +161,7 @@ Threadsafe_queue<T>::wait_and_pop() noexcept
 
 template<typename T>
 bool
-Threadsafe_queue<T>::empty() const noexcept
+Threadsafe_queue<T>::empty() noexcept
 {
     std::lock_guard<std::mutex> lock{ m_mut };
     
