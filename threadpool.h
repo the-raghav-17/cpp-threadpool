@@ -33,11 +33,11 @@ public:
      * Constructors to wrap a simple queue
      */
     Threadsafe_queue(const std::queue<T>& queue) noexcept:
-	m_queue{ queue }
+        m_queue{ queue }
     {}
 
     Threadsafe_queue(std::queue<T>&& queue) noexcept:
-	m_queue{ std::move(queue) }
+        m_queue{ std::move(queue) }
     {}
 
     /**
@@ -115,7 +115,7 @@ Threadsafe_queue<T>::try_pop(T& value) noexcept
 
     // If the queue is empty, return false
     if (m_queue.empty()) {
-	return false;
+        return false;
     }
 
     // Otherwise, pop the value and return true
@@ -133,7 +133,7 @@ Threadsafe_queue<T>::try_pop()
 
     // If queue is empty, throw exception
     if (m_queue.empty()) {
-	throw std::runtime_error{ "try_pop(): Queue is empty" };
+        throw std::runtime_error{ "try_pop(): Queue is empty" };
     }
 
     // Otherwise, pop the value and return it
@@ -166,7 +166,7 @@ Threadsafe_queue<T>::empty() const noexcept
     std::lock_guard<std::mutex> lock{ m_mut };
     
     if (m_queue.empty()) {
-	return true;
+        return true;
     }
     return false;
 }
@@ -200,7 +200,7 @@ public:
      * Constructor to wrap a simple vector of threads
      */
     Thread_vector(std::vector<std::thread>&& vector) noexcept:
-	m_vector{ std::move(vector) }
+        m_vector{ std::move(vector) }
     {}
 
     /**
@@ -223,9 +223,9 @@ Thread_vector::~Thread_vector()
 {
     // Join the threads
     for (auto& thread : m_vector) {
-	if (thread.joinable()) {
-	    thread.join();
-	}
+        if (thread.joinable()) {
+            thread.join();
+        }
     }
 }
 
