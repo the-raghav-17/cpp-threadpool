@@ -76,6 +76,12 @@ public:
      */
     bool empty() noexcept;
 
+    /**
+     * Return size of the
+     * underlying queue
+     */
+    std::size_t size() noexcept;
+
 private:
     std::queue<T>           m_queue{};
     std::mutex              m_mut{};
@@ -169,6 +175,15 @@ Threadsafe_queue<T>::empty() noexcept
         return true;
     }
     return false;
+}
+
+
+template<typename T>
+std::size_t
+Threadsafe_queue<T>::size() noexcept
+{
+    std::lock_guard<std::mutex> lock{ m_mut };
+    return m_queue.size();
 }
 
 
