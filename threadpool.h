@@ -111,6 +111,8 @@ template<typename T>
 Threadsafe_queue<T>&
 Threadsafe_queue<T>::operator=(const Threadsafe_queue<T>& other)
 {
+    std::lock_guard<std::mutex> lock{ m_mut };
+
     if (&other == this) {
         return *this;
     }
@@ -124,6 +126,8 @@ template<typename T>
 Threadsafe_queue<T>&
 Threadsafe_queue<T>::operator=(Threadsafe_queue<T>&& other)
 {
+    std::lock_guard<std::mutex> lock{ m_mut };
+
     if (&other == this) {
         return *this;
     }
